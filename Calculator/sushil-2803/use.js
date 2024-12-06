@@ -6,6 +6,9 @@ var input = document.getElementById('input'), // input/output button
   result = document.getElementById('result'), // equal button
   clear = document.getElementById('clear'), // clear button
   resultDisplayed = false; // flag to keep an eye on what output is displayed
+  var divSym = String.fromCharCode(247);
+  var multSym = String.fromCharCode(215);
+  var period = String.fromCharCode(46);
 
 // adding click handlers to number buttons
 
@@ -17,7 +20,7 @@ function number_handler(event) {
   // if result is not diplayed, just keep adding
   if (resultDisplayed === false) {
     input.innerHTML += event.target.innerHTML;
-  } else if (resultDisplayed === true && lastChar === "+" || lastChar === "-" || lastChar === "×" || lastChar === "÷") {
+  } else if (resultDisplayed === true && lastChar === "+" || lastChar === "-" || lastChar === multSym || lastChar === divSym) {
     // if result is currently displayed and user pressed an operator
     // we need to keep on adding to the string for next operation
     resultDisplayed = false;
@@ -42,13 +45,17 @@ function operator_handler(event) {
   var lastChar = currentString[currentString.length - 1];
 
   // if last character entered is an operator, replace it with the currently pressed one
-  if (lastChar === "+" || lastChar === "-" || lastChar === "x" || lastChar === "÷") {
+  if (lastChar === "+" || lastChar === "-" || lastChar === multSym || lastChar === divSym) {
     var newString = currentString.substring(0, currentString.length - 1) + event.target.innerHTML;
     input.innerHTML = newString;
   } else if (currentString.length == 0) {
     // if first key pressed is an opearator, don't do anything
     console.log("enter a number first");
-  } else {
+  } else if (lastChar === period){
+    console.log("Hi");
+    var newString = currentString.substring(0, currentString.length - 1) + event.target.innerHTML;
+    input.innerHTML = newString;
+  }else {
     // else just add the operator pressed to the input
     input.innerHTML += event.target.innerHTML;
   }
@@ -68,7 +75,7 @@ function windows_handler(event){
   // if result is not diplayed, just keep adding
   if (resultDisplayed === false) {
     input.innerHTML += parseInt(event.key);
-  } else if (resultDisplayed === true && lastChar === "+" || lastChar === "-" || lastChar === "×" || lastChar === "÷") {
+  } else if (resultDisplayed === true && lastChar === "+" || lastChar === "-" || lastChar === multSym || lastChar === divSym) {
     // if result is currently displayed and user pressed an operator
     // we need to keep on adding to the string for next operation
     resultDisplayed = false;
@@ -81,19 +88,19 @@ function windows_handler(event){
     input.innerHTML += parseInt(event.key);
   }
   }
-  else if(event.key === "+" || event.key === "-" || event.key === "x" || event.key === "÷" || event.key === "/"  ||  event.key === "*" ){
+  else if(event.key === "+" || event.key === "-" || event.key === multSym || event.key === divSym || event.key === "/"  ||  event.key === "*" ){
      // storing current input string and its last character in variables - used later
   var currentString = input.innerHTML;
   var lastChar = currentString[currentString.length - 1];
   var s=event.key;
   if(s=="/"){      // deckared a variable s to accomodte / as ÷
-    s="÷"
+    s=divSym
   }
   if(s=="*"){    // to accomodate * as ×
     s=document.querySelector('.multiply_sign').textContent;        // to apply sign x when * is pressed
   }
   // if last character entered is an operator, replace it with the currently pressed one
-  if (lastChar === "+" || lastChar === "-" || lastChar === "x" || lastChar === "÷") {
+  if (lastChar === "+" || lastChar === "-" || lastChar === multSym || lastChar === divSym) {
     var newString = currentString.substring(0, currentString.length - 1) + s;
     input.innerHTML = newString;
   } else if (currentString.length == 0) {
@@ -116,7 +123,7 @@ function output(){
   var inputString = input.innerHTML;
 
   // forming an array of numbers. eg for above string it will be: numbers = ["10", "26", "33", "56", "34", "23"]
-  var numbers = inputString.split(/\+|\-|\×|\÷/g);
+  var numbers = inputString.replace(/\+|\-|multSym|divSym/g, "").split("");
 
   // forming an array of operators. for above string it will be: operators = ["+", "+", "-", "*", "/"]
   // first we replace all the numbers and dot with empty string and then split
@@ -132,18 +139,24 @@ function output(){
   // as we move we are alterning the original numbers and operators array
   // the final element remaining in the array will be the output
 
-  var divide = operators.indexOf("÷");
+  var divide = operators.indexOf(divSym);
+
+  for (i = 0; i < operators.length; i++){
+    if (operators[i] == divSym && numbers[i + 1] == 0){
+      alert("Error: Division by zero is undefined.");
+    }
+  }
   while (divide != -1) {
     numbers.splice(divide, 2, numbers[divide] / numbers[divide + 1]);
     operators.splice(divide, 1);
-    divide = operators.indexOf("÷");
+    divide = operators.indexOf(divSym);
   }
 
-  var multiply = operators.indexOf("×");
+  var multiply = operators.indexOf(multSym);
   while (multiply != -1) {
     numbers.splice(multiply, 2, numbers[multiply] * numbers[multiply + 1]);
     operators.splice(multiply, 1);
-    multiply = operators.indexOf("×");
+    multiply = operators.indexOf(multSym);
   }
 
   var subtract = operators.indexOf("-");
